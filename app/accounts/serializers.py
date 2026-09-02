@@ -29,14 +29,21 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         )
         return user
 
-class LoginSerializer(serializers.Serializer):
-    username = serializers.CharField(required=True)
-    password = serializers.CharField(
-        required=True, 
-        write_only=True, 
-        style={'input_type': 'password'}
+# Add this at the bottom of serializers.py
+class LogoutSerializer(serializers.Serializer):
+    confirm = serializers.BooleanField(
+        default=True,
+        help_text="Check this box to confirm logout"
     )
 
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField(max_length=150, required=True)
+    password = serializers.CharField(
+        style={'input_type': 'password'},
+        write_only=True,
+        required=True
+    )
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

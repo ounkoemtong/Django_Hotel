@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import authenticate, get_user_model
 
-from .serializers import UserRegisterSerializer, UserSerializer
+from .serializers import UserRegisterSerializer, UserSerializer, LoginSerializer ,LogoutSerializer
 
 User = get_user_model()
 
@@ -32,16 +32,19 @@ class RegisterView(generics.CreateAPIView):
 # API ចូលប្រើប្រាស់ (Login)
 class LoginView(APIView):
     permission_classes = [AllowAny]
+    serializer_class = LoginSerializer  # Tells DRF what fields to render in HTML
+
+    def get(self, request):
+        """Displays the HTML form in DRF's browsable API"""
+        serializer = self.serializer_class()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        username = request.data.get('username')
-        password = request.data.get('password')
+        serializer = self.serializer_class(data=request.data)
+        serializer.is_valid(raise_exception=True)
 
-        if not username or not password:
-            return Response(
-                {"error": "Please provide both username and password"},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        username = serializer.validated_data.get('username')
+        password = serializer.validated_data.get('password')
 
         user = authenticate(username=username, password=password)
 
@@ -57,14 +60,25 @@ class LoginView(APIView):
             "user": UserSerializer(user).data
         }, status=status.HTTP_200_OK)
 
-
-# API ចាកចេញ (Logout)
 class LogoutView(APIView):
+    # SessionAuthentication allows the browser's current login session to work here
     permission_classes = [IsAuthenticated]
+    serializer_class = LogoutSerializer
+
+    def get(self, request):
+        """Renders the HTML form inside the DRF browsable UI"""
+        serializer = self.serializer_class()
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        request.user.auth_token.delete()
+        """Handles the logout action submitted via the form"""
+        # Delete token if using TokenAuthentication
+        if hasattr(request.user, 'auth_token'):
+            request.user.auth_token.delete()
+
         return Response({"message": "Successfully logged out."}, status=status.HTTP_200_OK)
+
+
 
 
 # API មើលព័ត៌មានផ្ទាល់ខ្លួន (Profile)
