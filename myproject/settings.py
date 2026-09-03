@@ -93,11 +93,12 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 'django_hotel',
         'USER': 'root',
-        'PASSWORD': '',
+        'PASSWORD': 'koemtong',
         'HOST': '127.0.0.1',
         'PORT': '3306',
         'OPTIONS': {
             'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+            'unix_socket': '/opt/lampp/var/mysql/mysql.sock',
         },
     }
 }
@@ -158,4 +159,4 @@ REST_FRAMEWORK = {
 
 
 # Custom User Model
-AUTH_USER_MODEL = 'accounts.User'
+AUTH_USER_MODEL = "accounts.User"
